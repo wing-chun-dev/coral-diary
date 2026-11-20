@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дневник самочувствия — Coral Club</title>
+<meta name="description" content="Личный дневник самочувствия по Концепции Здоровья Coral Club. Заполняй поэтапно, следи за прогрессом и получай персональные рекомендации.">
+<meta property="og:title" content="🌿 Дневник самочувствия — Coral Club">
+<meta property="og:description" content="Заполняй поэтапно, следи за своим здоровьем и получай рекомендации от Наталии.">
+<meta property="og:type" content="website">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 15px; background: #f5f9f4; color: #2d4a2b; min-height: 100vh; }
+h1 { color: #4a7c3a; text-align: center; border-bottom: 3px solid #8bc34a; padding-bottom: 10px; font-size: 20px; margin-bottom: 15px; }
+h2 { color: #5a8c4a; font-size: 18px; margin-bottom: 15px; }
+h3 { color: #689f58; font-size: 15px; margin: 15px 0 10px; }
+.info-bar { background: #e8f5e9; padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; font-size: 13px; border-left: 4px solid #8bc34a; }
+.save-status { color: #2e7d32; font-weight: bold; margin-left: 10px; }
+.backup-note { background: #fff3e0; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; border-left: 4px solid #ff9800; }
+.tabs-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; justify-content: center; }
+.tab { padding: 8px 10px; border-radius: 20px; background: white; border: 2px solid #c5e1a5; cursor: pointer; font-size: 11px; font-weight: 600; color: #5a8c4a; transition: all 0.2s; position: relative; text-align: center; min-width: 80px; }
+.tab:hover { background: #e8f5e9; transform: translateY(-2px); }
+.tab.active { background: #8bc34a; color: white; border-color: #8bc34a; }
+.tab.completed { border-color: #4caf50; }
+.tab.completed::after { content: '⭐'; position: absolute; top: -8px; right: -8px; background: #ffd700; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.tab.active.completed::after { background: white; color: #ffd700; }
+.tab-content { display: none; animation: fadeIn 0.3s; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 13px; color: #2d4a2b; }
+.form-group input[type="text"], .form-group input[type="number"], .form-group input[type="date"], .form-group input[type="tel"], .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #c5e1a5; border-radius: 8px; font-family: inherit; font-size: 14px; transition: border 0.2s; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #8bc34a; }
+.form-group textarea { min-height: 80px; resize: vertical; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+.radio-group { display: flex; flex-direction: column; gap: 8px; }
+.radio-option { display: flex; align-items: center; padding: 10px; background: white; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.radio-option:hover { border-color: #8bc34a; background: #f1f8e9; }
+.radio-option input[type="radio"] { margin-right: 10px; transform: scale(1.2); accent-color: #8bc34a; }
+.radio-option.selected { border-color: #8bc34a; background: #e8f5e9; }
+.checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+.checkbox-option { display: flex; align-items: center; padding: 10px; background: white; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.checkbox-option:hover { border-color: #8bc34a; background: #f1f8e9; }
+.checkbox-option input[type="checkbox"] { margin-right: 10px; transform: scale(1.2); accent-color: #8bc34a; }
+.checkbox-option.selected { border-color: #8bc34a; background: #e8f5e9; }
+.insight-block { background: white; padding: 15px; border-radius: 10px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #8bc34a; }
+.insight-block label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a7c3a; font-size: 14px; }
+.insight-block textarea { width: 100%; min-height: 80px; padding: 10px; border: 2px solid #c5e1a5; border-radius: 8px; font-family: inherit; font-size: 13px; resize: vertical; }
+.summary-box { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); padding: 20px; border-radius: 12px; margin: 25px 0; border: 2px solid #4caf50; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2); }
+.summary-box b { color: #1b5e20; display: block; margin-bottom: 10px; font-size: 16px; }
+.nav-buttons { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0; }
+.nav-btn { padding: 12px 25px; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.2s; }
+.nav-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-prev { background: #9e9e9e; color: white; }
+.btn-next { background: #8bc34a; color: white; }
+.btn-send { background: #2e7d32; color: white; }
+.btn-send-small { background: #4caf50; color: white; padding: 10px 20px; font-size: 13px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+.btn-send-small:hover { transform: translateY(-2px); opacity: 0.9; }
+.action-buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+.action-btn { padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s; }
+.action-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+.btn-print { background: #8bc34a; color: white; }
+.btn-export { background: #42a5f5; color: white; }
+.btn-import { background: #ab47bc; color: white; }
+.btn-clear { background: #e57373; color: white; }
+.motivation-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 2000; max-width: 400px; text-align: center; animation: popIn 0.4s; }
+@keyframes popIn { from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+.motivation-popup .emoji { font-size: 50px; margin-bottom: 15px; }
+.motivation-popup .title { font-size: 20px; font-weight: bold; color: #2e7d32; margin-bottom: 10px; }
+.motivation-popup .message { font-size: 14px; color: #555; margin-bottom: 15px; line-height: 1.5; }
+.motivation-popup .quote { font-style: italic; color: #7a9a6a; font-size: 13px; border-top: 1px solid #e0e0e0; padding-top: 10px; margin-top: 10px; }
+.motivation-popup .close-btn { background: #8bc34a; color: white; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: bold; margin-top: 10px; }
+.days-counter { background: linear-gradient(135deg, #fff3e0, #ffe0b2); padding: 10px 15px; border-radius: 10px; margin: 15px 0; text-align: center; font-size: 14px; border-left: 4px solid #ff9800; }
+.send-button-container { text-align: center; margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 15px; border: 2px solid #4caf50; }
+.send-button-container p { margin-bottom: 15px; font-size: 14px; color: #2e7d32; }
+.btn-complete-program { background: linear-gradient(135deg, #FFD700, #FFA500); color: #2d4a2b; font-weight: bold; font-size: 16px; padding: 15px 20px; border: none; border-radius: 12px; cursor: pointer; width: 100%; margin-top: 20px; box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3); transition: all 0.3s ease; }
+.btn-complete-program:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4); }
+.completion-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+.completion-modal-overlay.active { display: flex; }
+.completion-modal-box { background: white; padding: 30px; border-radius: 20px; max-width: 500px; width: 100%; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: popIn 0.4s; }
+.overview-section { background: white; padding: 15px; border-radius: 10px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.overview-section h3 { color: #4a7c3a; border-bottom: 2px solid #8bc34a; padding-bottom: 5px; margin-bottom: 10px; }
+.overview-item { padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+.overview-item:last-child { border-bottom: none; }
+.overview-item strong { color: #5a8c4a; }
+.women-section { background: #fce4ec; padding: 10px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #e91e63; font-size: 12px; }
+.final-dynamics-box { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #4caf50; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2); }
+.final-dynamics-box h3 { color: #1b5e20; border-bottom: 2px solid #4caf50; padding-bottom: 8px; margin-bottom: 15px; font-size: 18px; text-align: center; }
+.dynamic-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #a5d6a7; font-size: 14px; flex-wrap: wrap; gap: 5px; }
+.dynamic-row:last-child { border-bottom: none; }
+.dynamic-val { font-weight: bold; color: #2e7d32; text-align: right; }
+
+/* НОВЫЙ СТИЛЬ ДЛЯ БОЛЬШОЙ КНОПКИ ОБЗОРА */
+.overview-button-container {
+  text-align: center;
+  margin: 25px 0;
+  padding: 0;
+}
+.btn-overview-big {
+  background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  padding: 20px 40px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  transition: all 0.3s ease;
+  animation: pulse 2s infinite;
+  display: inline-block;
+  text-decoration: none;
+}
+.btn-overview-big:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+}
+.btn-overview-big .emoji {
+  font-size: 24px;
+  margin-right: 10px;
+}
+.btn-overview-big .text {
+  display: block;
+  font-size: 14px;
+  font-weight: normal;
+  margin-top: 5px;
+  opacity: 0.9;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4); }
+  50% { box-shadow: 0 6px 30px rgba(255, 107, 107, 0.7); }
+  100% { box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4); }
+}
+
+@media print { body { background: white; margin: 0; padding: 0; } .tabs-container, .nav-buttons, .action-buttons, .completion-modal-overlay, .info-bar, .backup-note, .motivation-popup, .send-button-container, .btn-complete-program, .overview-button-container { display: none !important; } .tab-content { display: block !important; page-break-after: always; } }
+</style>
+</head>
+<body>
+<h1>🌿 Дневник самочувствия<br><span style="font-size:14px; color:#7a9a6a;">Концепция Здоровья — Coral Club</span></h1>
+<div class="info-bar">💚 <b>Заполняй поэтапно!</b> Начни с "Анкеты", затем переходи к этапам. Данные сохраняются автоматически.<span id="saveStatus" class="save-status"></span></div>
+<div class="backup-note">⚠️ <b>Важно:</b> Регулярно нажимай <b>"Экспорт данных"</b> и сохраняй файл-резервную копию.</div>
+<div id="daysCounter" class="days-counter" style="display:none;"></div>
+
+<!-- БОЛЬШАЯ КНОПКА ОБЗОРА - ВСЕГДА ВИДНА -->
+<div class="overview-button-container">
+  <button class="btn-overview-big" onclick="showOverview()">
+    <span class="emoji">📊</span>
+    Посмотреть мой прогресс
+    <span class="text">Нажми, чтобы увидеть всю динамику изменений!</span>
+  </button>
+</div>
+
+<div class="tabs-container" id="tabsContainer"></div>
+<div id="tabContents"></div>
+<div class="nav-buttons">
+  <button class="nav-btn btn-prev" id="btnPrev" onclick="navigateTab(-1)">← Назад</button>
+  <button class="nav-btn btn-next" id="btnNext" onclick="navigateTab(1)">Далее →</button>
+</div>
+<div class="action-buttons">
+  <button class="action-btn btn-print" onclick="window.print()">🖨 Печать / PDF</button>
+  <button class="action-btn btn-export" onclick="exportData()">💾 Экспорт</button>
+  <label class="action-btn btn-import" style="cursor: pointer;">📂 Импорт<input type="file" accept=".json" onchange="importData(event)" style="display: none;"></label>
+  <button class="action-btn btn-clear" onclick="clearAll()">🗑 Очистить</button>
+</div>
+
+<div id="completionModal" class="completion-modal-overlay" onclick="closeCompletionModal(event)">
+  <div class="completion-modal-box" onclick="event.stopPropagation()">
+    <h3 style="color: #4CAF50; margin-top: 0; font-size: 22px;">🏆 Поздравляю тебя от всей души!</h3>
+    <p style="font-size: 15px; line-height: 1.6; color: #333; text-align: left; margin-bottom: 20px;">
+      Я невероятно рада, что ты прошел(а) этот путь и позаботился(ась) о самом важном — о своём здоровье. Ты большой(ая) молодец!<br><br>
+      Знаешь, многие, кто проходит эту программу, влюбляются в результат и начинают делиться им с близкими и друзьями, просто потому что искренне заботятся о них.<br><br>
+      Если тебе откликнулась эта мысль — напиши мне в личные сообщения. Я с радостью расскажу, как ты можешь помогать другим людям становиться здоровее, а компания за это будет благодарить тебя бонусами, и на эти бонусы ты сможешь брать продукт бесплатно!<br><br>
+      Буду рада пообщаться! 💚
+    </p>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+      <a href="https://t.me/wellness_nataliazhigar" target="_blank" style="background: #0088cc; color: white; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: bold; display: inline-block;">Написать Наталии в Telegram</a>
+      <button onclick="closeCompletionModal()" style="background: #f0f0f0; color: #333; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; cursor: pointer; font-weight: bold;">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWxeqR9zP9TzxgeplON-gUKbivyJuvijAmzQuGi84zWfplfY_dp3eR6IY0sNezCQzR/exec";
+const tabs = [
+  { id: 'questionnaire', name: '📋 Анкета', type: 'questionnaire' },
+  { id: 'start', name: '🎯 Старт', type: 'stage' },
+  { id: 'w1', name: '📅 1 неделя', type: 'stage' },
+  { id: 'd21', name: '📅 21 день', type: 'stage' },
+  { id: 'm1', name: '📅 1 мес', type: 'stage' },
+  { id: 'm2', name: '📅 2 мес', type: 'stage' },
+  { id: 'm3', name: '📅 3 мес', type: 'stage' },
+  { id: 'm4', name: '📅 4 мес', type: 'stage' },
+  { id: 'm5', name: '📅 5 мес', type: 'stage' },
+  { id: 'm6', name: '📅 6 мес', type: 'stage' }
+];
+const stageNames = { 'start': 'Исходное состояние', 'w1': '1 неделя', 'd21': '21 день', 'm1': '1 месяц', 'm2': '2 месяца', 'm3': '3 месяца', 'm4': '4 месяца', 'm5': '5 месяцев', 'm6': '6 месяцев' };
+const stageTimeText = { 'start': 'начало пути', 'w1': '1 неделю', 'd21': '3 недели', 'm1': '1 месяц', 'm2': '2 месяца', 'm3': '3 месяца', 'm4': '4 месяца', 'm5': '5 месяцев', 'm6': '6 месяцев' };
+let currentTab = 0;
+let allData = {};
+
+const questionnaireSections = [
+  { title: '👤 Базовая информация', questions: [
+    { id: 'q_name', text: 'Ваше имя и сколько вам полных лет', type: 'text', placeholder: 'Например: Анна, 38 лет' },
+    { id: 'q_weight_height', text: 'Ваш ВЕС (кг) и РОСТ (см)', type: 'text', placeholder: 'Например: 70 кг, 165 см' },
+    { id: 'q_country_city', text: 'Страна проживания и город', type: 'text', placeholder: 'Например: Россия, Санкт-Петербург' },
+    { id: 'q_phone', text: 'Номер телефона (с кодом страны)', type: 'tel', placeholder: '+7...' }
+  ]},
+  { title: '🎯 Главная цель', questions: [
+    { id: 'q_main_concern', text: 'Опишите подробно, что на данный момент беспокоит больше всего? Что бы вы хотели улучшить в своем самочувствии?', type: 'textarea', placeholder: 'Например: хроническая усталость, проблемы с ЖКТ...' }
+  ]},
+  { title: '🏃 Образ жизни', questions: [
+    { id: 'q_lifestyle', text: 'Какой у вас образ жизни и род деятельности?', type: 'radio', options: ['Сидячая работа, мало двигаюсь в течении дня', 'Работа на ногах (стоя), но двигаюсь мало', 'Физически активная работа, много двигаюсь в течении дня'] },
+    { id: 'q_sport', text: 'Занимаетесь ли спортом или физической активностью?', type: 'radio', options: ['Нет, практически нет активности', 'Иногда, по настроению', 'Прогулки/домашние дела/зарядка', 'Да, регулярно (3 раза в неделю)', 'Активные тренировки 4+ раз в неделю'] }
+  ]},
+  { title: '⚡️ Энергия и сон', questions: [
+    { id: 'q_energy', text: 'Как вы оцениваете свой уровень энергии от 1 до 10?', type: 'text', inputmode: 'numeric', placeholder: '1-10' },
+    { id: 'q_energy_drop', text: 'Бывает ли упадок сил в течение дня?', type: 'radio', options: ['Редко', 'Иногда, после нагрузок', 'Да, практически каждый день'] },
+    { id: 'q_energy_drop_time', text: 'В какое время суток вы чувствуете наибольший спад энергии?', type: 'radio', options: ['Утром (тяжело просыпаюсь, уставший и разбитый)', 'После обеда (14:00-16:00)', 'Вечером (к 18:00-20:00)', 'Энергия ровная в течение дня'] },
+    { id: 'q_brain_fog', text: 'Как часто бывает "туман в голове", трудности с концентрацией?', type: 'radio', options: ['Практически нет', 'Иногда', 'Часто, это мешает работе/жизни'] },
+    { id: 'q_cramps', text: 'Чувствуете ли мышечную слабость, бывают ли судороги в ногах, подергивание века?', type: 'radio', options: ['Нет', 'Иногда', 'Да, часто'] },
+    { id: 'q_cold', text: 'Мерзнете ли вы? Холодные руки/ноги?', type: 'radio', options: ['Нет, мне обычно тепло', 'Иногда мерзну', 'Да, часто мерзну, руки и ноги холодные', 'Да, даже в тепле мерзну'] },
+    { id: 'q_coffee', text: 'Сколько чашек кофе/чая вы пьете за день?', type: 'radio', options: ['Не пью', '1 чашка', '2-3 чашки', 'Более 3 чашек'] },
+    { id: 'q_sweet', text: 'Есть ли тяга к сладкому, мучному, особенно во второй половине дня?', type: 'radio', options: ['Нет', 'Иногда, в определенные периоды', 'Да, постоянно'] },
+    { id: 'q_weight_goal', text: 'Есть ли цель по весу?', type: 'radio', options: ['Нет, вес устраивает, хочу улучшить самочувствие', 'Да, хочу снизить', 'Да, хочу набрать массу'] },
+    { id: 'q_weight_goal_detail', text: 'Если да, на сколько кг?', type: 'text', placeholder: 'Например: на 5 кг' },
+    { id: 'q_sleep_time', text: 'Во сколько вы обычно ложитесь спать?', type: 'radio', options: ['До 22:00', '22:00-23:00', '23:00-00:00', 'После 00:00', 'Ложусь в разное время, нет режима'] },
+    { id: 'q_sleep_quality', text: 'Как вы спите?', type: 'checkbox', options: ['Сплю 7-8 часов, просыпаюсь отдохнувшим', 'Сплю достаточно, но утром все равно усталость', 'Трудно уснуть', 'Часто просыпаюсь ночью', 'Сплю менее 6 часов'] },
+    { id: 'q_stress', text: 'Как оцениваете уровень стресса?', type: 'radio', options: ['Низкий: живу в спокойном ритме', 'Средний: бывают напряженные дни', 'Постоянный стресс: на работе, дома'] }
+  ]},
+  { title: '🍏 Питание и ЖКТ', questions: [
+    { id: 'q_meals', text: 'Сколько раз в день вы обычно едите?', type: 'radio', options: ['2 раза плюс перекусы', '3 раза без перекусов (завтрак, обед, ужин)', '3 раза плюс перекусы', 'Как получается, не регулярно'] },
+    { id: 'q_breakfast', text: 'Из чего обычно состоит ваш завтрак?', type: 'radio', options: ['Кофе/чай "на бегу"', 'В основном углеводы: каша, бутерброд, сладкое, выпечка', 'Белково-жировой: яйца, мясо, рыба, творог', 'Смешанный: углеводы/белки/жиры'] },
+    { id: 'q_diet', text: 'Что чаще всего в вашем рационе? (можно несколько)', type: 'checkbox', options: ['Мясо, яйца', 'Рыба, морепродукты', 'Каши, крупы', 'Молочные продукты', 'Мучное, сладкое', 'Бобовые', 'Овощи', 'Фрукты', 'Фастфуд'] },
+    { id: 'q_heaviness', text: 'Бывает ли чувство тяжести после еды?', type: 'radio', options: ['Нет', 'Иногда', 'Да, часто'] },
+    { id: 'q_bloating', text: 'Как часто вас беспокоит вздутие живота, газообразование?', type: 'radio', options: ['Не бывает', 'Редко', 'После еды', 'Практически постоянно'] },
+    { id: 'q_right_side', text: 'Есть ли тяжесть в правом боку после еды?', type: 'radio', options: ['Нет', 'Иногда', 'Да, часто'] },
+    { id: 'q_bitter', text: 'Беспокоит ли горечь во рту, изжога, отрыжка?', type: 'radio', options: ['Нет', 'Иногда', 'Да, регулярно'] },
+    { id: 'q_thirst', text: 'Как часто вы чувствуете жажду?', type: 'radio', options: ['Редко, могу не пить воду подолгу', 'Пью, когда вспомню', 'Регулярно чувствую потребность'] },
+    { id: 'q_water', text: 'Сколько воды вы пьете в день?', type: 'radio', options: ['Менее 0,5 л', '0,5-1 л', '1-1,5 л', '1,5-2 л', 'Более 2 л'] },
+    { id: 'q_edema', text: 'Есть ли у Вас отеки по утрам или в течение дня?', type: 'radio', options: ['Нет', 'Иногда', 'Да, часто'] },
+    { id: 'q_stool_freq', text: 'Как часто бывает стул?', type: 'radio', options: ['Менее 3 раз в неделю', 'Через день', '1 раз в день', '1-2 раза в день (регулярно, комфортно)', 'Бывают запоры/диарея/нестабильно'] },
+    { id: 'q_stool_consist', text: 'Какой стул по консистенции?', type: 'radio', options: ['Овечий кал', 'Оформленный в виде колбаски', 'Мягкий, оставляет следы на унитазе'] },
+    { id: 'q_allergies', text: 'Есть ли пищевые непереносимости, аллергии? Если да, напишите какие и на что', type: 'textarea', placeholder: 'Например: лактоза, глютен...' }
+  ]},
+  { title: '✨ Внешность', questions: [
+    { id: 'q_skin', text: 'Как бы вы описали состояние вашей кожи?', type: 'radio', options: ['Нормальная, в порядке', 'Сухая, шелушится', 'Жирная, склонная к высыпаниям', 'Смешанная'] },
+    { id: 'q_rash', text: 'Есть ли высыпания, акне, покраснения?', type: 'radio', options: ['Нет', 'Иногда', 'Да, регулярно'] },
+    { id: 'q_hair', text: 'Состояние волос?', type: 'radio', options: ['Густые, блестящие, не выпадают', 'Нормальные, не выпадают', 'Выпадают больше, чем обычно', 'Сухие, ломкие, секутся кончики', 'Медленно растут, тусклые'] },
+    { id: 'q_nails', text: 'Состояние ногтей?', type: 'radio', options: ['Крепкие, ровные, хорошо растут', 'Не слоятся, но тонкие', 'Слоятся, ломаются', 'Белые пятнышки, бороздки, неровности'] }
+  ]},
+  { title: '🏥 Здоровье', questions: [
+    { id: 'q_diseases', text: 'Есть ли у вас хронические заболевания или иные состояния, о которых мне следует знать?', type: 'checkbox', options: ['Нет, хронических и иных заболеваний нет', 'Заболевания ЖКТ (гастрит, язва, панкреатит, СРК и др.)', 'Заболевания щитовидной железы', 'Сахарный диабет или преддиабет', 'Аутоиммунные заболевания', 'Сердечно-сосудистые заболевания', 'Гормональные нарушения', 'Заболевания печени или почек'] },
+    { id: 'q_diseases_other', text: 'Если есть другие заболевания, напишите какие', type: 'textarea', placeholder: 'Например: АИТ, миома...' },
+    { id: 'q_medications', text: 'Принимаете ли вы сейчас какие-то лекарства регулярно? Если да, обязательно напишите какие', type: 'textarea', placeholder: 'Например: L-тироксин 50 мкг...' },
+    { id: 'q_supplements', text: 'Принимаете ли вы сейчас витамины, добавки, БАДы? Если да, напишите какие', type: 'textarea', placeholder: 'Например: витамин Д, омега-3...' },
+    { id: 'q_analyses', text: 'Сдавали ли вы анализы в последние 6-12 месяцев? Если да, напишите какие', type: 'textarea', placeholder: 'Например: ОАК, ферритин, ТТГ...' },
+    { id: 'q_operations', text: 'Были ли у Вас операции, серьезные травмы? Если да, напишите какие', type: 'textarea', placeholder: 'Например: удаление желчного...' }
+  ]},
+  { title: '🌸 Для женщин', questions: [
+    { id: 'q_women_cycle', text: 'Есть ли нарушения цикла, ПМС, приливы?', type: 'radio', options: ['Цикл регулярный, самочувствие стабильное', 'Есть ПМС, болезненность, перепады настроения', 'Цикл нерегулярный, есть задержки', 'Менопауза, перименопауза', 'Не применимо'] }
+  ]},
+  { title: '💚 Готовность к работе', questions: [
+    { id: 'q_readiness', text: 'Готовы ли вы внедрять рекомендации постепенно, в течение 1-3 месяцев?', type: 'radio', options: ['Да, настроен(а) на результат и готов(а) работать', 'Готов(а), но есть ограничения по бюджету', 'Пока не знаю. Нужно консультироваться с врачом'] },
+    { id: 'q_budget', text: 'Какой бюджет вы готовы рассматривать на ежемесячную поддержку организма нутрицевтиками?', type: 'radio', options: ['До 3 000 р', '3 000-7 000 р', '7 000-15 000 р', 'Готов(а) инвестировать в здоровье, главное результат', 'Затрудняюсь ответить'] },
+    { id: 'q_source', text: 'Откуда вы узнали обо мне?', type: 'radio', options: ['Тик ток', 'Instagram', 'VK/ВКонтакте', 'Telegram', 'Рекомендация друзей', 'ДЧХ', 'Феномен', 'БББН', 'Живое знакомство', 'Другое'] },
+    { id: 'q_other', text: 'Есть ли еще что-то, что вас беспокоит, но не попало в вопросы?', type: 'textarea', placeholder: 'Напишите, если есть...' }
+  ]}
+];
+
+const stageMetrics = [
+  { id: 'energy', text: '⚡️ Уровень энергии (1-10)', type: 'text', inputmode: 'numeric' },
+  { id: 'energy_drop', text: '⚡️ Упадок сил в течение дня', type: 'radio', options: ['Редко', 'Иногда', 'Да, практически каждый день'] },
+  { id: 'stress', text: '😰 Уровень стресса (1-10)', type: 'text', inputmode: 'numeric' },
+  { id: 'sleep_quality', text: '🌙 Качество сна', type: 'radio', options: ['Отлично', 'Норм', 'Плохо'] },
+  { id: 'sweet_craving', text: '🍰 Тяга к сладкому', type: 'radio', options: ['Нет', 'Иногда', 'Постоянно'] },
+  { id: 'bloating', text: '🎈 Вздутие', type: 'radio', options: ['Нет', 'Иногда', 'Постоянно'] },
+  { id: 'edema', text: '💦 Отеки', type: 'radio', options: ['Нет', 'Лёгкие', 'Сильные'] },
+  { id: 'skin', text: '✨ Состояние кожи', type: 'radio', options: ['Хорошо', 'Норм', 'Сухая', 'Жирная/высыпания'] },
+  { id: 'hair', text: '💇 Состояние волос', type: 'radio', options: ['Хорошо', 'Выпадают', 'Сухие/ломкие', 'Норм'] },
+  { id: 'joints', text: '🦴 Боли в суставах', type: 'radio', options: ['Нет', 'Иногда', 'Часто'] },
+  { id: 'weight', text: '⚖️ Вес (кг)', type: 'text', inputmode: 'decimal' },
+  { id: 'taking', text: '📦 Принимаю продукты по схеме', type: 'radio', options: ['Да, всё', 'Частично', 'Нет'] },
+  { id: 'skips', text: '📦 Пропуски приёма', type: 'radio', options: ['Нет', '1-2 раза', 'Часто'] }
+];
+
+const motivationalMessages = [
+  { emoji: '🌟', title: 'Отличная работа!', message: 'Ты делаешь важный шаг к своему здоровью!' },
+  { emoji: '💪', title: 'Так держать!', message: 'Каждый заполненный этап — это вклад в твоё будущее!' },
+  { emoji: '🎯', title: 'Цель близко!', message: 'Ты на правильном пути. Продолжай в том же духе!' },
+  { emoji: '🔥', title: 'Ты супер!', message: 'Твоя дисциплина восхищает! Так держать!' }
+];
+const healthQuotes = [
+  '«Здоровье — это не всё, но без здоровья всё — ничто» — Сократ',
+  '«Твоё тело — это единственный дом, в котором тебе жить всю жизнь» — Джим Рон',
+  '«Забота о своём теле — это не эгоизм, это необходимость»',
+  '«Маленькие шаги каждый день приводят к большим результатам»'
+];
+
+function getAllData() { try { const saved = localStorage.getItem('full_diary_data'); if (saved) { allData = JSON.parse(saved); } else { allData = {}; } } catch(e) { console.error('Ошибка чтения:', e); allData = {}; } return allData; }
+function getFromData(key) { return allData[key] || ''; }
+function init() { getAllData(); renderTabs(); renderTabContents(); loadAllDataToDOM(); showTab(0); updateDates(); updateDaysCounter(); }
+function renderTabs() { const container = document.getElementById('tabsContainer'); container.innerHTML = ''; tabs.forEach((tab, idx) => { const btn = document.createElement('div'); btn.className = 'tab'; btn.textContent = tab.name; btn.onclick = () => onTabClick(idx); btn.id = 'tab_' + tab.id; container.appendChild(btn); }); }
+function onTabClick(idx) { onFieldChange(); showTab(idx); }
+function renderTabContents() { const container = document.getElementById('tabContents'); container.innerHTML = ''; tabs.forEach((tab) => { const content = document.createElement('div'); content.className = 'tab-content'; content.id = 'content_' + tab.id; if (tab.type === 'questionnaire') content.innerHTML = renderQuestionnaireContent(); else if (tab.type === 'stage') content.innerHTML = renderStageContent(tab.id); container.appendChild(content); }); }
+
+function renderQuestionnaireContent() {
+  let html = '<h2>📋 Анкета здоровья</h2><p style="font-size: 13px; color: #7a9a6a; margin-bottom: 15px;">Заполни анкету полностью — это поможет Наталии составить персональные рекомендации. Данные сохраняются автоматически.</p>';
+  questionnaireSections.forEach(section => {
+    html += '<h3>' + section.title + '</h3>';
+    section.questions.forEach(q => { html += renderQuestionnaireQuestion(q); });
+  });
+  html += '<div class="send-button-container"><p>📬 <b>Анкета заполнена?</b><br>Нажми кнопку ниже — данные сохранятся в таблицу, и Наталия получит уведомление в Telegram.</p><button class="btn-send-small" onclick="saveQuestionnaire()" style="padding: 15px 30px; font-size: 15px;">💾 Сохранить анкету</button></div>';
+  return html;
+}
+
+function renderQuestionnaireQuestion(q) {
+  const fieldId = q.id;
+  let html = '<div class="form-group"><label>' + q.text + '</label>';
+  if (q.type === 'radio') {
+    html += '<div class="radio-group">';
+    q.options.forEach(opt => { html += '<label class="radio-option"><input type="radio" name="' + fieldId + '" value="' + opt + '" onchange="onFieldChange(); updateRadioStyles(this)"><span>' + opt + '</span></label>'; });
+    html += '</div>';
+  } else if (q.type === 'checkbox') {
+    html += '<div class="checkbox-group">';
+    q.options.forEach(opt => { html += '<label class="checkbox-option"><input type="checkbox" name="' + fieldId + '" value="' + opt + '" onchange="onFieldChange(); updateCheckboxStyles(this)"><span>' + opt + '</span></label>'; });
+    html += '</div>';
+  } else if (q.type === 'textarea') {
+    html += '<textarea id="' + fieldId + '" oninput="onFieldChange()" placeholder="' + (q.placeholder || '') + '"></textarea>';
+  } else {
+    html += '<input type="' + q.type + '" id="' + fieldId + '" inputmode="' + (q.inputmode || 'text') + '" oninput="onFieldChange()" placeholder="' + (q.placeholder || '') + '">';
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderStageContent(stageId) {
+  const stageName = stageNames[stageId];
+  let html = '<h2 id="title_' + stageId + '">🎯 ' + stageName + '</h2>';
+  if (stageId === 'start') {
+    html += '<div class="form-group" style="background: #e8f5e9; padding: 15px; border-radius: 10px; border: 2px dashed #8bc34a; margin-bottom: 20px;">';
+    html += '<label style="font-size: 15px; font-weight: bold; color: #2e7d32;">📅 Дата старта программы:</label>';
+    html += '<p style="font-size: 12px; color: #7a9a6a; margin: 5px 0 10px 0;">Выберите дату, когда вы начинаете программу. От неё будут отсчитываться все следующие этапы.</p>';
+    html += '<input type="date" id="start_date" onchange="onFieldChange(); updateDates(); updateDaysCounter();" style="font-size: 16px; font-weight: bold;">';
+    html += '</div>';
+    html += '<p style="font-size: 13px; color: #7a9a6a; margin-bottom: 15px;">Зафиксируй своё исходное состояние</p>';
+  } else {
+    html += '<p style="font-size: 13px; color: #7a9a6a; margin-bottom: 15px;">Отметь изменения по сравнению с предыдущим этапом</p>';
+  }
+  
+  html += '<h3>⚡️ Самочувствие</h3>';
+  stageMetrics.forEach(q => {
+    if (stageId === 'start' && (q.id === 'taking' || q.id === 'skips')) { return; }
+    html += renderStageQuestion(q, stageId);
+  });
+  
+  if (stageId !== 'start') {
+    html += '<h3>💡 Инсайты этапа "' + stageName + '"</h3>';
+    html += '<div class="insight-block"><label>🌟 Что самого яркого/нового ты заметил(а)?</label><textarea id="insight_bright_' + stageId + '" oninput="onFieldChange()" placeholder="Например: «Ушли отеки по утрам»..."></textarea></div>';
+    html += '<div class="insight-block"><label>⚠️ Что беспокоит? Непривычные реакции?</label><textarea id="insight_problems_' + stageId + '" oninput="onFieldChange()" placeholder="Например: «На 5 день появилась сыпь»..."></textarea></div>';
+    html += '<div class="insight-block"><label>🎯 Главный вывод этого этапа:</label><textarea id="insight_summary_' + stageId + '" oninput="onFieldChange()" placeholder="Одной фразой — что ты поняла про своё тело?"></textarea></div>';
+    html += '<div class="summary-box" id="summary_' + stageId + '"><b>🏁 Итоги этапа: посмотри, как изменилось твоё состояние!</b><div id="summary_text_' + stageId + '">Заполни параметры выше, чтобы увидеть свою динамику ✨</div></div>';
+  }
+  
+  html += '<div class="send-button-container"><p>📬 <b>Готов(а) сохранить отчёт?</b><br>Нажми кнопку ниже — данные сохранятся в таблицу, и Наталия получит уведомление в Telegram.</p><button class="btn-send-small" onclick="saveReport()" style="padding: 15px 30px; font-size: 15px;">💾 Сохранить отчёт</button></div>';
+  
+  if (['m1', 'm2', 'm3', 'm4', 'm5', 'm6'].includes(stageId)) {
+    html += '<button class="btn-complete-program" onclick="handleProgramCompletion()">🏆 Я завершаю программу полностью</button>';
+  }
+  return html;
+}
+
+function renderStageQuestion(q, stageId) {
+  const fieldId = q.id + '_' + stageId;
+  let html = '<div class="form-group"><label>' + q.text + '</label>';
+  if (q.type === 'radio') {
+    html += '<div class="radio-group">';
+    q.options.forEach(opt => { html += '<label class="radio-option"><input type="radio" name="' + fieldId + '" value="' + opt + '" onchange="onFieldChange(); updateRadioStyles(this)"><span>' + opt + '</span></label>'; });
+    html += '</div>';
+  } else {
+    html += '<input type="' + q.type + '" id="' + fieldId + '" inputmode="' + (q.inputmode || 'text') + '" oninput="onFieldChange()" placeholder="Введи значение">';
+  }
+  html += '</div>';
+  return html;
+}
+
+// Функция для показа обзора
+function showOverview() {
+  const overviewContent = renderOverviewContent();
+  const container = document.getElementById('tabContents');
+  container.innerHTML = '<div class="tab-content active" id="content_overview">' + overviewContent + '</div>';
+  updateOverview();
+  showPersonalGreeting();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderOverviewContent() {
+  let html = '<h2>📊 Обзор всех этапов</h2><p style="font-size: 13px; color: #7a9a6a; margin-bottom: 15px;">Сводка по всем заполненным этапам.</p>';
+  html += '<div id="personalGreeting" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center; border: 2px solid #4caf50;"></div>';
+  html += '<div class="overview-section"><h3>📋 Базовая информация</h3>';
+  html += '<div class="overview-item"><strong>Имя:</strong> <span id="ov_name">—</span></div>';
+  html += '<div class="overview-item"><strong>Город:</strong> <span id="ov_city">—</span></div>';
+  html += '<div class="overview-item"><strong>Вес/Рост:</strong> <span id="ov_weight_height">—</span></div>';
+  html += '<div class="overview-item"><strong>Дата старта:</strong> <span id="ov_start_date">—</span></div>';
+  html += '<div class="overview-item"><strong>Главная цель:</strong> <span id="ov_main_concern">—</span></div>';
+  html += '</div>';
+  tabs.filter(t => t.type === 'stage').forEach(tab => {
+    html += '<div class="overview-section"><h3>' + tab.name + '</h3>';
+    html += '<div class="overview-item"><strong>Энергия:</strong> <span id="ov_energy_' + tab.id + '">—</span>/10</div>';
+    html += '<div class="overview-item"><strong>Стресс:</strong> <span id="ov_stress_' + tab.id + '">—</span>/10</div>';
+    html += '<div class="overview-item"><strong>Вес:</strong> <span id="ov_weight_' + tab.id + '">—</span> кг</div>';
+    html += '</div>';
+  });
+  html += '<div class="final-dynamics-box"><h3>🏆 Итоговая динамика самочувствия</h3><div id="finalDynamicsContent"><p style="text-align:center; color:#777;">Загрузка...</p></div></div>';
+  html += '<div style="text-align: center; margin-top: 30px;"><button class="btn-overview-big" onclick="showTab(0)" style="font-size: 16px; padding: 15px 30px;"><span class="emoji">←</span> Вернуться к этапам</button></div>';
+  return html;
+}
+
+function updateCheckboxStyles(checkbox) { const option = checkbox.closest('.checkbox-option'); if (checkbox.checked) { option.classList.add('selected'); } else { option.classList.remove('selected'); } }
+function updateRadioStyles(radio) { const group = radio.closest('.radio-group'); if (group) { group.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected')); radio.closest('.radio-option').classList.add('selected'); } }
+
+function showMotivationPopup() {
+  const msg = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+  const quote = healthQuotes[Math.floor(Math.random() * healthQuotes.length)];
+  const popup = document.createElement('div'); popup.className = 'motivation-popup';
+  popup.innerHTML = '<div class="emoji">' + msg.emoji + '</div><div class="title">' + msg.title + '</div><div class="message">' + msg.message + '</div><div class="quote">' + quote + '</div><button class="close-btn" onclick="this.parentElement.remove(); var ov=document.getElementById(\'motivationOverlay\'); if(ov) ov.remove();">Продолжить 💪</button>';
+  const overlay = document.createElement('div'); overlay.id = 'motivationOverlay'; overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);z-index:1999;';
+  overlay.onclick = function() { popup.remove(); overlay.remove(); };
+  document.body.appendChild(overlay); document.body.appendChild(popup);
+}
+function updateDaysCounter() {
+  const counter = document.getElementById('daysCounter'); const startDateStr = allData['start_date'];
+  if (!startDateStr) { counter.style.display = 'none'; return; }
+  const startDate = new Date(startDateStr); const today = new Date(); const diffTime = Math.abs(today - startDate); const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  counter.style.display = 'block';
+  if (diffDays === 0) counter.innerHTML = '🎉 <b>Сегодня день старта!</b> Поздравляем с началом пути к здоровью!';
+  else if (diffDays === 1) counter.innerHTML = '🌱 <b>1 день</b> на пути к здоровью! Отличное начало!';
+  else counter.innerHTML = '🚀 <b>' + diffDays + ' дней</b> на пути к здоровью! Ты молодец!';
+}
+function showTab(idx) {
+  currentTab = idx;
+  document.querySelectorAll('.tab').forEach((tab, i) => tab.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-content').forEach((content, i) => content.classList.toggle('active', i === idx));
+  document.getElementById('btnPrev').disabled = idx === 0; document.getElementById('btnNext').disabled = idx === tabs.length - 1;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function showPersonalGreeting() {
+  const name = getFromData('q_name').trim(); const greeting = document.getElementById('personalGreeting'); if (!greeting) return;
+  let lastCompletedStage = null; const stageOrder = ['m6', 'm5', 'm4', 'm3', 'm2', 'm1', 'd21', 'w1', 'start'];
+  for (const stageId of stageOrder) { if (allData['energy_' + stageId] && allData['weight_' + stageId]) { lastCompletedStage = stageId; break; } }
+  const timeText = stageTimeText[lastCompletedStage] || 'начало пути';
+  let baseMessage = '', milestoneMessage = '';
+  
+  if (lastCompletedStage === 'm6') { 
+    baseMessage = '🌟 <b>Ты проделала невероятный путь!</b> ' + timeText + ' осознанной заботы о себе — это настоящее достижение, которым можно гордиться.'; 
+    milestoneMessage = '<p style="margin-bottom: 12px;">💧 Ты регулярно пьёшь структурированную воду с <b>Корал-Майн</b>, дважды в год проходишь <b>Концепцию здоровья</b> — и это твой осознанный выбор быть здоровой.</p><p style="margin-bottom: 12px;">🌿 Теперь ты не просто клиент — ты <b>эксперт своего здоровья</b>. Ты сама умеешь слышать своё тело, правильно питаться и поддерживать организм с помощью продукции <b>Coral Club</b>.</p><p style="margin-bottom: 12px;">💚 Ты можешь делиться этим опытом с близкими и помогать им открывать путь к здоровью. Ведь здоровый человек рядом — это лучшая мотивация!</p><p style="margin-bottom: 12px;">🎁 <b>Бонус за рекомендации:</b> компания благодарит тебя бонусами, и на эти бонусы ты сможешь брать продукт бесплатно!</p>'; 
+  } 
+  else if (lastCompletedStage === 'm3' || lastCompletedStage === 'm4' || lastCompletedStage === 'm5') { 
+    baseMessage = '🌟 <b>Поздравляю!</b> ' + timeText + ' осознанной заботы о себе — это уже настоящий результат!'; 
+    milestoneMessage = '<p style="margin-bottom: 12px;">💧 Ты уже пьёшь воду с <b>Корал-Майн</b> и следуешь рекомендациям <b>Концепции здоровья</b>.</p><p style="margin-bottom: 12px;">🌿 <b>Ты молодец!</b> Ты уже можешь <b>рекомендовать программу другим</b> — твой опыт и результаты говорят сами за себя.</p><p style="margin-bottom: 12px;">💚 Если хочешь закрепить результат — <b>продолжай программу</b> до 6 месяцев. Но даже если решишь сделать паузу — ты уже на правильном пути!</p><p style="margin-bottom: 12px;">🎁 <b>Бонус за рекомендации:</b> компания благодарит тебя бонусами, и на эти бонусы ты сможешь брать продукт бесплатно!</p>'; 
+  } 
+  else if (lastCompletedStage === 'm1' || lastCompletedStage === 'm2') { 
+    baseMessage = '🌟 <b>Хороший прогресс!</b> ' + timeText + ' осознанной заботы о себе.'; 
+    milestoneMessage = '<p style="margin-bottom: 12px;">💧 Ты уже пьёшь воду с <b>Корал-Майн</b> и следишь за своим состоянием. Продолжай в том же духе!</p><p style="margin-bottom: 12px;">🌿 <b>Продолжай программу</b> — впереди ещё много открытий о своём теле. К 3 месяцам ты увидишь устойчивые изменения!</p><p style="margin-bottom: 12px;">🎁 <b>Бонус за рекомендации:</b> ты уже можешь делиться опытом с близкими — компания благодарит бонусами, на которые ты сможешь брать продукт бесплатно!</p>'; 
+  } 
+  else if (lastCompletedStage === 'd21' || lastCompletedStage === 'w1') { 
+    baseMessage = '🌟 <b>Ты на правильном пути!</b> ' + timeText + ' заботы о себе.'; 
+    milestoneMessage = '<p style="margin-bottom: 12px;">💧 Ты начала пить воду с <b>Корал-Майн</b> и следить за своим состоянием. Продолжай в том же духе!</p><p style="margin-bottom: 12px;">🌿 <b>Продолжай программу</b> — впереди первый месяц и первые устойчивые результаты!</p>'; 
+  } 
+  else if (lastCompletedStage === 'start') { 
+    baseMessage = '🌟 <b>Ты в самом начале пути!</b> Зафиксировала своё исходное состояние — это уже важный шаг.'; 
+    milestoneMessage = '<p style="margin-bottom: 12px;">🌱 Каждый заполненный этап — это шаг к лучшей версии себя.</p><p style="margin-bottom: 12px;">💧 <b>Продолжай программу</b> — впереди неделя, 21 день и первые результаты!</p>'; 
+  } 
+  else { 
+    baseMessage = '🌟 <b>Добро пожаловать!</b> Ты в самом начале пути к здоровью.'; 
+    milestoneMessage = '<p style="margin-bottom: 12px;">🌱 Заполни все этапы, чтобы увидеть свой прогресс и получить персональные рекомендации.</p>'; 
+  }
+  
+  if (name) { greeting.innerHTML = '<div style="font-size: 40px; margin-bottom: 10px;">🏆</div><div style="font-size: 22px; font-weight: bold; color: #2e7d32; margin-bottom: 15px;">Привет, ' + name + '!</div><div style="font-size: 15px; color: #2d4a2b; line-height: 1.6; text-align: left;"><p style="margin-bottom: 12px;">' + baseMessage + '</p>' + milestoneMessage + '<p style="text-align: center; font-size: 18px; margin-top: 15px;"><b>Горжусь тобой! Ты — пример того, как меняется жизнь, когда выбираешь здоровье! 🎉</b></p></div>'; } 
+  else { greeting.innerHTML = '<div style="font-size: 40px; margin-bottom: 10px;">👋</div><div style="font-size: 18px; font-weight: bold; color: #2e7d32;">Добро пожаловать!</div><div style="font-size: 14px; color: #555; margin-top: 10px;">Заполни все этапы, чтобы увидеть свой путь к здоровью.</div>'; }
+}
+
+function navigateTab(direction) {
+  const newIdx = currentTab + direction; if (newIdx < 0 || newIdx >= tabs.length) return;
+  onFieldChange(); if (direction > 0) { setTimeout(() => showMotivationPopup(), 300); }
+  showTab(newIdx);
+}
+function updateDates() {
+  const startDateStr = allData['start_date']; if (!startDateStr) return; const startDate = new Date(startDateStr); if (isNaN(startDate.getTime())) return;
+  const stagesDates = { 'start': startDate, 'w1': addDays(startDate, 7), 'd21': addDays(startDate, 21), 'm1': addMonths(startDate, 1), 'm2': addMonths(startDate, 2), 'm3': addMonths(startDate, 3), 'm4': addMonths(startDate, 4), 'm5': addMonths(startDate, 5), 'm6': addMonths(startDate, 6) };
+  tabs.forEach(tab => {
+    if (tab.type === 'stage') {
+      const date = stagesDates[tab.id]; const formattedDate = formatDate(date); const tabBtn = document.getElementById('tab_' + tab.id);
+      if (tabBtn) { let shortLabel = ''; if(tab.id === 'start') shortLabel = '🎯 Старт'; else if(tab.id === 'w1') shortLabel = '📅 1 нед'; else if(tab.id === 'd21') shortLabel = '📅 21 дн'; else if(tab.id.startsWith('m')) shortLabel = '📅 ' + tab.id.replace('m','') + ' мес'; tabBtn.textContent = shortLabel + ' (' + formattedDate + ')'; }
+      const contentTitle = document.getElementById('title_' + tab.id); if (contentTitle) contentTitle.innerHTML = tab.name + ' <span style="font-size: 14px; color: #7a9a6a; font-weight: normal;">(Целевая дата: ' + formattedDate + ')</span>';
+    }
+  });
+}
+function addDays(date, days) { const result = new Date(date); result.setDate(result.getDate() + days); return result; }
+function addMonths(date, months) { const result = new Date(date); result.setMonth(result.getMonth() + months); if (result.getDate() !== date.getDate()) result.setDate(0); return result; }
+function formatDate(date) { return String(date.getDate()).padStart(2,'0') + '.' + String(date.getMonth()+1).padStart(2,'0') + '.' + date.getFullYear(); }
+
+function onFieldChange() {
+  document.querySelectorAll('input, textarea').forEach(el => {
+    if (el.id) { 
+      if (el.type === 'radio') { if (el.checked) allData[el.name] = el.value; } 
+      else if (el.type === 'checkbox') { 
+        const name = el.name;
+        if (!allData[name]) allData[name] = [];
+        if (el.checked) { if (!allData[name].includes(el.value)) allData[name].push(el.value); }
+        else { allData[name] = allData[name].filter(v => v !== el.value); }
+      } 
+      else { allData[el.id] = el.value; } 
+    }
+  });
+  const startDateField = document.getElementById('start_date');
+  if (startDateField && startDateField.value) {
+    allData['start_date'] = startDateField.value;
+  }
+  localStorage.setItem('full_diary_data', JSON.stringify(allData)); showSaveStatus(); updateTabBadges(); updateAllSummaries();
+}
+
+function showSaveStatus() { const status = document.getElementById('saveStatus'); status.textContent = '✓ Сохранено'; setTimeout(() => status.textContent = '', 2000); }
+function updateTabBadges() {
+  tabs.forEach(tab => {
+    const tabEl = document.getElementById('tab_' + tab.id); if (!tabEl) return; let isCompleted = false;
+    if (tab.type === 'questionnaire') { isCompleted = allData['q_name'] && allData['q_name'].trim() && allData['q_phone'] && allData['q_phone'].trim(); } 
+    else if (tab.type === 'stage') { isCompleted = allData['energy_' + tab.id] && allData['weight_' + tab.id]; }
+    tabEl.classList.toggle('completed', !!isCompleted);
+  });
+}
+function updateAllSummaries() {
+  const stages = tabs.filter(t => t.type === 'stage');
+  stages.forEach((tab, idx) => {
+    if (idx === 0) return; const summaryEl = document.getElementById('summary_text_' + tab.id); if (!summaryEl) return;
+    const currentStageId = tab.id; const prevStageId = stages[idx - 1].id; let changes = [];
+    const prevWeight = allData['weight_' + prevStageId] || null; const currWeight = allData['weight_' + currentStageId] || null;
+    if (prevWeight && currWeight) { const diff = (parseFloat(currWeight) - parseFloat(prevWeight)).toFixed(1); if (diff != 0) changes.push('⚖️ Вес: ' + (diff > 0 ? '+' : '') + diff + ' кг'); }
+    const prevEnergy = allData['energy_' + prevStageId] || '—'; const currEnergy = allData['energy_' + currentStageId] || '—';
+    if (prevEnergy !== '—' && currEnergy !== '—' && prevEnergy !== currEnergy) changes.push('⚡️ Энергия: ' + prevEnergy + ' → ' + currEnergy);
+    const prevStress = allData['stress_' + prevStageId] || '—'; const currStress = allData['stress_' + currentStageId] || '—';
+    if (prevStress !== '—' && currStress !== '—' && prevStress !== currStress) changes.push('😰 Стресс: ' + prevStress + ' → ' + currStress);
+    summaryEl.innerHTML = changes.length > 0 ? changes.join('<br>') : 'Пока нет изменений или данные не заполнены';
+  });
+}
+function updateFinalDynamics() {
+  let lastFilledStageId = null;
+  for (let i = tabs.length - 2; i >= 1; i--) { if (tabs[i].type === 'stage') { const st = tabs[i].id; if (allData['energy_' + st] || allData['weight_' + st]) { lastFilledStageId = st; break; } } }
+  const container = document.getElementById('finalDynamicsContent');
+  if (!lastFilledStageId || lastFilledStageId === 'start') { container.innerHTML = '<p style="text-align:center; color:#777; padding: 10px;">Заполни хотя бы один этап после "Старта", чтобы увидеть итоговую динамику 🚀</p>'; return; }
+  const startId = 'start'; const lastId = lastFilledStageId; const lastStageName = stageNames[lastId];
+  let html = '<p style="text-align:center; margin-bottom:15px; font-size:14px; color: #1b5e20;">🏆 <b>Твой путь от "Исходного состояния" до "' + lastStageName + '"</b></p>';
+  const metrics = [{ id: 'weight', label: '⚖️ Вес', type: 'number', unit: ' кг', good: 'down' }, { id: 'energy', label: '⚡️ Энергия', type: 'number', unit: '/10', good: 'up' }, { id: 'stress', label: '😰 Стресс', type: 'number', unit: '/10', good: 'down' }];
+  metrics.forEach(m => {
+    let startVal, lastVal;
+    if (m.type === 'number') {
+      startVal = allData[m.id + '_' + startId] ? parseFloat(allData[m.id + '_' + startId]) : NaN; lastVal = allData[m.id + '_' + lastId] ? parseFloat(allData[m.id + '_' + lastId]) : NaN;
+      if (!isNaN(startVal) && !isNaN(lastVal)) {
+        const diff = (lastVal - startVal).toFixed(1); const diffStr = diff > 0 ? '+' + diff : diff; let icon = diff == 0 ? '➡️' : (m.good === 'up' ? (diff > 0 ? '📈' : '📉') : (diff < 0 ? '📈' : '📉'));
+        html += '<div class="dynamic-row"><span>' + m.label + '</span><span class="dynamic-val">' + startVal + m.unit + ' ➡️ ' + lastVal + m.unit + ' (' + diffStr + ') ' + icon + '</span></div>';
+      }
+    }
+  });
+  container.innerHTML = html;
+}
+function updateOverview() {
+  document.getElementById('ov_name').textContent = allData['q_name'] || '—'; 
+  document.getElementById('ov_city').textContent = allData['q_country_city'] || '—'; 
+  document.getElementById('ov_weight_height').textContent = allData['q_weight_height'] || '—';
+  document.getElementById('ov_main_concern').textContent = allData['q_main_concern'] || '—';
+  document.getElementById('ov_start_date').textContent = allData['start_date'] ? formatDate(new Date(allData['start_date'])) : '—';
+  tabs.filter(t => t.type === 'stage').forEach(tab => {
+    const stageId = tab.id; document.getElementById('ov_energy_' + stageId).textContent = allData['energy_' + stageId] || '—'; document.getElementById('ov_stress_' + stageId).textContent = allData['stress_' + stageId] || '—';
+    const weight = allData['weight_' + stageId] || ''; document.getElementById('ov_weight_' + stageId).textContent = weight || '—';
+  });
+  updateFinalDynamics();
+}
+function loadAllDataToDOM() {
+  document.querySelectorAll('input, textarea').forEach(el => {
+    if (el.id) { 
+      if (el.type === 'radio') { if (allData[el.name] === el.value) { el.checked = true; updateRadioStyles(el); } } 
+      else if (el.type === 'checkbox') { 
+        if (allData[el.name] && Array.isArray(allData[el.name]) && allData[el.name].includes(el.value)) { el.checked = true; updateCheckboxStyles(el); }
+      } 
+      else { if (allData[el.id] !== undefined) { el.value = allData[el.id]; } } 
+    }
+  });
+}
+function exportData() {
+  onFieldChange(); const dataStr = JSON.stringify(allData); if (!dataStr || dataStr === '{}') { alert('Нет данных для экспорта!'); return; }
+  const blob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a');
+  const name = allData['q_name'] || 'резервная_копия'; a.href = url; a.download = 'Дневник_' + name + '_' + new Date().toLocaleDateString('ru-RU') + '.json'; a.click(); URL.revokeObjectURL(url);
+  alert('✅ Резервная копия сохранена!');
+}
+function importData(event) {
+  const file = event.target.files[0]; if (!file) return; if (!file.name.endsWith('.json')) { alert('❌ Ошибка: выберите файл формата .json'); return; }
+  const reader = new FileReader(); reader.onload = function(e) {
+    try { const data = e.target.result; const parsed = JSON.parse(data); if (typeof parsed !== 'object' || parsed === null) throw new Error('Неверный формат данных'); allData = parsed; localStorage.setItem('full_diary_data', JSON.stringify(allData)); loadAllDataToDOM(); updateTabBadges(); updateAllSummaries(); updateDates(); updateDaysCounter(); alert('✅ Данные импортированы!'); } 
+    catch (err) { alert('❌ Ошибка: файл повреждён.\n\nДетали: ' + err.message); }
+  }; reader.readAsText(file);
+}
+function clearAll() { if (confirm('Точно очистить ВСЕ данные? Это действие нельзя отменить!')) { allData = {}; localStorage.removeItem('full_diary_data'); location.reload(); } }
+
+function buildQuestionnaireReport() {
+  onFieldChange();
+  let report = '🌿 АНКЕТА ЗДОРОВЬЯ\nКонцепция Здоровья — Coral Club\n━━━━━━━━━━━━━━━━━━━━━\n\n';
+  questionnaireSections.forEach(section => {
+    report += '📍 ' + section.title + '\n';
+    section.questions.forEach(q => {
+      let value = '';
+      if (q.type === 'checkbox') { const vals = allData[q.id]; value = (Array.isArray(vals) && vals.length > 0) ? vals.join(', ') : '—'; } 
+      else { value = allData[q.id] || '—'; }
+      report += q.text + ': ' + value + '\n';
+    });
+    report += '\n';
+  });
+  return report;
+}
+
+function buildStageReport() {
+  onFieldChange();
+  let report = '🌿 ДНЕВНИК САМОЧУВСТВИЯ\nКонцепция Здоровья — Coral Club\n━━━━━━━━━━━━━━━━━━━━━\n\n';
+  report += '👤 Имя: ' + (allData['q_name'] || '—') + '\n📱 Телефон: ' + (allData['q_phone'] || '—') + '\n🌍 Город: ' + (allData['q_country_city'] || '—') + '\n📅 Дата старта: ' + (allData['start_date'] || '—') + '\n━━━━━━━━━━━━━━━━━━━━━\n\n';
+  tabs.filter(t => t.type === 'stage').forEach(tab => {
+    const stageId = tab.id; const stageName = stageNames[stageId]; const hasData = allData['energy_' + stageId] || allData['weight_' + stageId]; if (!hasData) return;
+    report += '📍 ' + stageName.toUpperCase() + '\n';
+    stageMetrics.forEach(q => {
+      if (stageId === 'start' && (q.id === 'taking' || q.id === 'skips')) { return; }
+      const fieldId = q.id + '_' + stageId;
+      let value = allData[fieldId] || '—';
+      report += q.text + ': ' + value + '\n';
+    });
+    const bright = allData['insight_bright_' + stageId]; const problems = allData['insight_problems_' + stageId]; const summary = allData['insight_summary_' + stageId];
+    if (bright || problems || summary) { report += '\n💡 ИНСАЙТЫ "' + stageName + '":\n'; if (bright) report += '🌟 Яркое: ' + bright + '\n'; if (problems) report += '⚠️ Беспокоит: ' + problems + '\n'; if (summary) report += '🎯 Вывод: ' + summary + '\n'; }
+    report += '─────────────────────\n';
+  });
+  return report;
+}
+
+async function sendDataToGoogleSheet(reportText, stageName) {
+  const payload = { name: allData['q_name'] || '—', phone: allData['q_phone'] || '—', city: allData['q_country_city'] || '—', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, startDate: allData['start_date'] || '', report: reportText, stage: stageName || 'Не указан' };
+  try { await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); return true; } 
+  catch (error) { console.error("Ошибка отправки:", error); return false; }
+}
+
+async function saveQuestionnaire() {
+  const report = buildQuestionnaireReport();
+  alert("⏳ Сохраняем анкету... Наталия получит уведомление в Telegram.");
+  const success = await sendDataToGoogleSheet(report, 'Анкета');
+  if (success) { alert("✅ Анкета сохранена!\n\nНаталия получила уведомление в Telegram.\nСпасибо! 💚"); }
+  else { alert("⚠️ Не удалось сохранить анкету. Попробуй ещё раз."); }
+}
+
+async function saveReport() {
+  const report = buildStageReport();
+  const currentStageName = tabs[currentTab].name;
+  alert("⏳ Сохраняем отчёт... Наталия получит уведомление в Telegram.");
+  const success = await sendDataToGoogleSheet(report, currentStageName);
+  if (success) { alert("✅ Отчёт сохранён!\n\nНаталия получила уведомление в Telegram.\nСпасибо за твою работу! 💚"); }
+  else { alert("⚠️ Не удалось сохранить отчёт. Попробуй ещё раз."); }
+}
+
+function handleProgramCompletion() {
+  const currentStageName = tabs[currentTab].name; const report = buildStageReport();
+  const payload = { action: 'complete_program', name: allData['q_name'] || '—', phone: allData['q_phone'] || '—', city: allData['q_country_city'] || '—', startDate: allData['start_date'] || '', report: report, stage: currentStageName };
+  fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(err => console.error("Ошибка отправки завершения:", err));
+  document.getElementById('completionModal').classList.add('active');
+}
+function closeCompletionModal(e) { if (!e || e.target.id === 'completionModal') { document.getElementById('completionModal').classList.remove('active'); } }
+window.addEventListener('beforeunload', function(e) { onFieldChange(); if (Object.keys(allData).length > 0) { e.preventDefault(); e.returnValue = ''; } });
+window.onload = init;
+</script>
+</body>
+</html>
